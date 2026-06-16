@@ -12,7 +12,6 @@ COPY database ./database
 COPY config ./config
 COPY model ./model
 COPY data ./data
-COPY .env .
 
 WORKDIR /app/kafka
 
