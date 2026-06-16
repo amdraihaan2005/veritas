@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+
+# Environment variables
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+*.pid
+
+# Grafana
+monitoring/grafana_data/
+
+# Prometheus
+monitoring/prometheus_data/
+
+# PostgreSQL
+postgres_data/
+
+# Kafka
+kafka_data/
+
+# Testing
+.pytest_cache/
+
+# Coverage
+.coverage
+htmlcov/
+
+# Build artifacts
+dist/
+build/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Dataset
+data/*.csv
