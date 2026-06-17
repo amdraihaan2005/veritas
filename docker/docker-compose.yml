@@ -35,9 +35,9 @@ services:
     restart: unless-stopped
 
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: fraud_detection
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
 
     ports:
       - "5432:5432"
@@ -80,7 +80,7 @@ services:
       - kafka
 
     environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
 
   consumer:
     build:
@@ -95,8 +95,8 @@ services:
       - postgres
 
     environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/fraud_detection
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
+      DATABASE_URL: ${DATABASE_URL}
 
   fastapi:
     build:
@@ -110,7 +110,7 @@ services:
       - postgres
 
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/fraud_detection
+      DATABASE_URL: ${DATABASE_URL}
 
     ports:
       - "8000:8000"
