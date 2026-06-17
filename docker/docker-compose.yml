@@ -29,6 +29,17 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "kafka-topics --bootstrap-server localhost:9092 --list > /dev/null 2>&1 || exit 1"
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
   postgres:
     image: postgres:17
     container_name: postgres
@@ -45,6 +56,13 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
   prometheus:
     image: prom/prometheus
     container_name: prometheus
@@ -57,16 +75,42 @@ services:
       - ../monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
 
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --spider -q http://localhost:9090/-/healthy || exit 1"
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
   grafana:
     image: grafana/grafana
     container_name: grafana
     restart: unless-stopped
+
+    environment:
+      GF_SERVER_ROOT_URL: "http://44.197.242.134/grafana/"
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
 
     ports:
       - "3000:3000"
 
     volumes:
       - grafana_data:/var/lib/grafana
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --spider -q http://localhost:3000/api/health || exit 1"
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
 
   producer:
     build:
@@ -91,8 +135,10 @@ services:
     restart: unless-stopped
 
     depends_on:
-      - kafka
-      - postgres
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
 
     environment:
       KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
@@ -107,13 +153,25 @@ services:
     restart: unless-stopped
 
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
     environment:
       DATABASE_URL: ${DATABASE_URL}
 
     ports:
       - "8000:8000"
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/docs')\""
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
 
   frontend:
     build:
@@ -124,7 +182,8 @@ services:
     restart: unless-stopped
 
     depends_on:
-      - fastapi
+      fastapi:
+        condition: service_healthy
 
     ports:
       - "5173:5173"

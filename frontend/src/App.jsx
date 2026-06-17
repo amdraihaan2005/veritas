@@ -23,15 +23,15 @@ function App() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-      const statsRes = await fetch("http://127.0.0.1:8000/stats", { signal: controller.signal });
+      const statsRes = await fetch("http://44.197.242.134:8000/stats", { signal: controller.signal });
       if (!statsRes.ok) throw new Error("Backend response error");
       const statsData = await statsRes.json();
       setStats(statsData);
 
       const [txRes, fraudRes, hrRes] = await Promise.all([
-        fetch("http://127.0.0.1:8000/transactions"),
-        fetch("http://127.0.0.1:8000/frauds"),
-        fetch("http://127.0.0.1:8000/high-risk")
+        fetch("http://44.197.242.134:8000/transactions"),
+        fetch("http://44.197.242.134:8000/frauds"),
+        fetch("http://44.197.242.134:8000/high-risk")
       ]);
 
       const [txData, fraudData, hrData] = await Promise.all([

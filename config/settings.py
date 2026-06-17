@@ -10,7 +10,7 @@ DATABASE_URL = os.getenv(
 
 frontend_origins_raw = os.getenv(
     "FRONTEND_ORIGINS",
-    "http://localhost:5173,http://localhost:5174,http://localhost:5175"
+    "*"
 )
 
 FRONTEND_ORIGINS = [
