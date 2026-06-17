@@ -6,16 +6,18 @@ function App() {
   const [transactions, setTransactions] = useState([]);
   const [frauds, setFrauds] = useState([]);
   const [highRiskTransactions, setHighRiskTransactions] = useState([]);
-  
+
   const [loading, setLoading] = useState(true);
   const [apiStatus, setApiStatus] = useState("checking");
   const [activeTab, setActiveTab] = useState("recent");
-  
+
   const [searchQuery, setSearchQuery] = useState("");
   const [amountFilter, setAmountFilter] = useState("all");
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [hoveredPoint, setHoveredPoint] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
+
+  const API_BASE_URL = "https://dmaat69syhmog.cloudfront.net/api";
 
   const fetchData = async () => {
     setApiStatus("checking");
@@ -23,15 +25,19 @@ function App() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-      const statsRes = await fetch("http://44.197.242.134:8000/stats", { signal: controller.signal });
+      const statsRes = await fetch(
+        `${API_BASE_URL}/stats`,
+        { signal: controller.signal }
+      );
+
       if (!statsRes.ok) throw new Error("Backend response error");
       const statsData = await statsRes.json();
       setStats(statsData);
 
       const [txRes, fraudRes, hrRes] = await Promise.all([
-        fetch("http://44.197.242.134:8000/transactions"),
-        fetch("http://44.197.242.134:8000/frauds"),
-        fetch("http://44.197.242.134:8000/high-risk")
+        fetch(`${API_BASE_URL}/transactions`),
+        fetch(`${API_BASE_URL}/frauds`),
+        fetch(`${API_BASE_URL}/high-risk`)
       ]);
 
       const [txData, fraudData, hrData] = await Promise.all([
@@ -70,14 +76,14 @@ function App() {
 
     return baseData.filter((tx) => {
       const idMatch = searchQuery ? tx.id?.toString() === searchQuery : true;
-      
+
       let amountMatch = true;
       if (amountFilter === "high") {
         amountMatch = tx.Amount > 100;
       } else if (amountFilter === "veryHigh") {
         amountMatch = tx.Amount > 1000;
       }
-      
+
       return idMatch && amountMatch;
     });
   };
@@ -390,7 +396,7 @@ function App() {
                 &times;
               </button>
             </div>
-            
+
             <div className="modal-body">
               <div className="modal-summary-grid">
                 <div className="summary-item">
@@ -443,7 +449,7 @@ function App() {
                 </div>
               </div>
             </div>
-            
+
             <div className="modal-footer">
               <button className="btn-close-modal" onClick={() => setSelectedTransaction(null)}>
                 Close Investigation
